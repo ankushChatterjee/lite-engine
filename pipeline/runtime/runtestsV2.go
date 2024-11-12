@@ -132,6 +132,13 @@ func executeRunTestsV2Step(ctx context.Context, f RunFunc, r *api.StartStepReque
 					})
 				}
 			}
+			if _, ok := outputs["total_tests"]; ok {
+				outputsV2 = append(outputsV2, &api.OutputV2{
+					Key:   "total_tests",
+					Value: string("total_tests"),
+					Type:  api.OutputTypeString,
+				})
+			}
 			return exited, outputs, exportEnvs, artifact, outputsV2, string(optimizationState), err
 		} else if len(r.OutputVars) > 0 {
 			// only return err when output vars are expected
