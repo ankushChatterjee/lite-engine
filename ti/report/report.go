@@ -14,6 +14,7 @@ import (
 	"github.com/harness/lite-engine/api"
 	tiCfg "github.com/harness/lite-engine/ti/config"
 	"github.com/harness/lite-engine/ti/report/parser/junit"
+	"github.com/harness/ti-client/types"
 	"github.com/sirupsen/logrus"
 )
 
@@ -49,5 +50,31 @@ func ParseAndUploadTests(ctx context.Context, report api.TestReport, workDir, st
 	}
 	logrus.WithContext(ctx).Infoln(fmt.Sprintf("Completed TI service request to write report for step %s, took %.2f seconds", stepID, time.Since(startTime).Seconds()))
 	log.Infoln(fmt.Sprintf("Successfully collected test reports in %s time", time.Since(start)))
+	return nil
+}
+
+func SaveReportSummaryToOutputs(ctx context.Context, tiConfig *tiCfg.Cfg, stepID string, outputs map[string]string, log *logrus.Logger) error {
+	tiClient := tiConfig.GetClient()
+	sumamryRequest := types.SummaryRequest{
+		AllStages:  false,
+		OrgID:      tiConfig.GetOrgID(),
+		ProjectID:  tiConfig.GetProjectID(),
+		PipelineID: tiConfig.GetPipelineID(),
+		BuildID:    tiConfig.GetBuildID(),
+		StageID:    tiConfig.GetStageID(),
+		StepID:     stepID,
+		ReportType: "JUNIT",
+	}
+	response, err := tiClient.Summary(ctx, sumamryRequest)
+	if err != nil {
+		return nil
+	}
+	// write to output file
+	log.Infoln(fmt.Sprintf("Number of tests run: %d", response.TotalTests))
+	outputs["total_tests"] = fmt.Sprintf("%d", response.TotalTests)
+	outputs["successful_tests"] = fmt.Sprintf("%d", response.SuccessfulTests)
+	outputs["failed_tests"] = fmt.Sprintf("%d", response.FailedTests)
+	outputs["skipped_tests"] = fmt.Sprintf("%d", response.SkippedTests)
+	outputs["duration_ms"] = fmt.Sprintf("%d", response.TimeMs)
 	return nil
 }

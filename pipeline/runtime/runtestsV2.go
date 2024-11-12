@@ -24,6 +24,7 @@ import (
 	"github.com/harness/lite-engine/ti/instrumentation/java"
 	"github.com/harness/lite-engine/ti/instrumentation/python"
 	"github.com/harness/lite-engine/ti/instrumentation/ruby"
+	"github.com/harness/lite-engine/ti/report"
 	"github.com/harness/lite-engine/ti/savings"
 	filter "github.com/harness/lite-engine/ti/testsfilteration"
 	"github.com/harness/ti-client/types"
@@ -43,6 +44,7 @@ const (
 	dotNetAgentProfilerGUID = "{86A1D712-8FAE-4ECD-9333-DB03F62E44FA}"
 	dotNetAgentV2LibLinux   = "net-agent.so"
 	dotNetAgentV2LibWin     = "net-agent.dll"
+	dotNetAgentV2LibMac     = "net-agent.dylib"
 	dotNetAgentV2Zip        = "dotnet-agent.zip"
 	dotNetAgentV2Path       = "/dotnet/v2/"
 	dotNetConfigV2Dir       = "%s/ti/v2/dotnet/config"
@@ -113,6 +115,12 @@ func executeRunTestsV2Step(ctx context.Context, f RunFunc, r *api.StartStepReque
 
 	if exited != nil && exited.Exited && exited.ExitCode == 0 {
 		outputs, err := fetchExportedVarsFromEnvFile(outputFile, out, useCINewGodotEnvVersion) //nolint:govet
+		if collectionErr == nil {
+			reportSaveErr := report.SaveReportSummaryToOutputs(ctx, tiConfig, step.ID, outputs, log)
+			if reportSaveErr != nil {
+				log.WithField("error", reportSaveErr).Error("Error while saving report summary to outputs")
+			}
+		}
 		if len(r.Outputs) > 0 {
 			outputsV2 := []*api.OutputV2{}
 			for _, output := range r.Outputs {
@@ -376,8 +384,9 @@ func getPreCmd(workspace, tmpFilePath string, fs filesystem.FileSystem, log *log
 
 	err = writetoBazelrcFile(log, fs)
 	if err != nil {
+		// TOOD: check with system level dir
 		log.WithError(err).Errorln("failed to write in .bazelrc file")
-		return "", "", err
+		//return "", "", err
 	}
 	javaAgentPath := fmt.Sprintf("%s%s%s", tmpFilePath, javaAgentV2Path, javaAgentV2Jar)
 	agentArg := fmt.Sprintf(javaAgentV2Arg, javaAgentPath, iniFilePath)
@@ -488,8 +497,10 @@ func getPreCmd(workspace, tmpFilePath string, fs filesystem.FileSystem, log *log
 		}
 
 		if goRuntime.GOOS == "windows" {
-			dotNetAgentPathWindows := fmt.Sprintf("%s%spack/%s", tmpFilePath, dotNetAgentV2Path, dotNetAgentV2LibWin)
-			envs["CORECLR_PROFILER_PATH"] = dotNetAgentPathWindows
+			envs["CORECLR_PROFILER_PATH"] = fmt.Sprintf("%s%spack/%s", tmpFilePath, dotNetAgentV2Path, dotNetAgentV2LibWin)
+		}
+		if goRuntime.GOOS == "darwin" {
+			envs["CORECLR_PROFILER_PATH"] = fmt.Sprintf("%s%spack/%s", tmpFilePath, dotNetAgentV2Path, dotNetAgentV2LibMac)
 		}
 
 		envs["CORECLR_PROFILER"] = dotNetAgentProfilerGUID
