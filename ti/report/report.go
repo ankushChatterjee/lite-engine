@@ -70,7 +70,7 @@ func SaveReportSummaryToOutputs(ctx context.Context, tiConfig *tiCfg.Cfg, stepID
 		return nil
 	}
 	// write to output file
-	log.Infoln(fmt.Sprintf("Number of tests run: %d", response.TotalTests))
+	log.Infof(fmt.Sprintf("Number of tests run: %d", response.TotalTests))
 	outputs["total_tests"] = fmt.Sprintf("%d", response.TotalTests)
 	outputs["successful_tests"] = fmt.Sprintf("%d", response.SuccessfulTests)
 	outputs["failed_tests"] = fmt.Sprintf("%d", response.FailedTests)

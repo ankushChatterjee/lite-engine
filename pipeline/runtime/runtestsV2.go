@@ -117,7 +117,7 @@ func executeRunTestsV2Step(ctx context.Context, f RunFunc, r *api.StartStepReque
 		outputs, err := fetchExportedVarsFromEnvFile(outputFile, out, useCINewGodotEnvVersion) //nolint:govet
 		reportSaveErr := report.SaveReportSummaryToOutputs(ctx, tiConfig, step.ID, outputs, log)
 		if reportSaveErr != nil {
-			log.WithField("error", reportSaveErr).Error("Error while saving report summary to outputs")
+			log.Errorf("Error while saving report summary to outputs %s", reportSaveErr.Error())
 		}
 
 		if len(r.Outputs) > 0 {
