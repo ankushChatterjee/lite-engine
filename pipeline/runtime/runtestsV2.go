@@ -118,6 +118,7 @@ func executeRunTestsV2Step(ctx context.Context, f RunFunc, r *api.StartStepReque
 		reportSaveErr := report.SaveReportSummaryToOutputs(ctx, tiConfig, step.ID, outputs, log)
 		if reportSaveErr != nil {
 			log.Errorf("Error while saving report summary to outputs %s", reportSaveErr.Error())
+			return nil, nil, nil, nil, nil, string(optimizationState), reportSaveErr
 		}
 
 		if len(r.Outputs) > 0 {

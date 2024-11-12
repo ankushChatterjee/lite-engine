@@ -56,14 +56,14 @@ func ParseAndUploadTests(ctx context.Context, report api.TestReport, workDir, st
 func SaveReportSummaryToOutputs(ctx context.Context, tiConfig *tiCfg.Cfg, stepID string, outputs map[string]string, log *logrus.Logger) error {
 	tiClient := tiConfig.GetClient()
 	sumamryRequest := types.SummaryRequest{
-		AllStages:  false,
+		AllStages:  true,
 		OrgID:      tiConfig.GetOrgID(),
 		ProjectID:  tiConfig.GetProjectID(),
 		PipelineID: tiConfig.GetPipelineID(),
 		BuildID:    tiConfig.GetBuildID(),
 		StageID:    tiConfig.GetStageID(),
 		StepID:     stepID,
-		ReportType: "JUNIT",
+		ReportType: "junit",
 	}
 	response, err := tiClient.Summary(ctx, sumamryRequest)
 	if err != nil {
