@@ -135,7 +135,7 @@ func executeRunTestsV2Step(ctx context.Context, f RunFunc, r *api.StartStepReque
 			if _, ok := outputs["total_tests"]; ok {
 				outputsV2 = append(outputsV2, &api.OutputV2{
 					Key:   "total_tests",
-					Value: string("total_tests"),
+					Value: outputs["total_tests"],
 					Type:  api.OutputTypeString,
 				})
 			}
