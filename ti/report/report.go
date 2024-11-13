@@ -93,7 +93,7 @@ func checkAndAddSummary(metricName string, outputs map[string]string, outputsV2 
 	if _, ok := outputs[metricName]; ok {
 		outputsV2 = append(outputsV2, &api.OutputV2{
 			Key:   metricName,
-			Value: outputs["total_tests"],
+			Value: outputs[metricName],
 			Type:  api.OutputTypeString,
 		})
 	}
