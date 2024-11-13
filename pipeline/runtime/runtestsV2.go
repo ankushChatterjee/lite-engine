@@ -118,8 +118,8 @@ func executeRunTestsV2Step(ctx context.Context, f RunFunc, r *api.StartStepReque
 		reportSaveErr := report.SaveReportSummaryToOutputs(ctx, tiConfig, step.Name, outputs, log)
 		if reportSaveErr != nil {
 			log.Errorf("Error while saving report summary to outputs %s", reportSaveErr.Error())
-			return nil, nil, nil, nil, nil, string(optimizationState), reportSaveErr
 		}
+		summaryOutputV2 := report.GetSummaryOutputsV2(outputs)
 
 		if len(r.Outputs) > 0 {
 			outputsV2 := []*api.OutputV2{}
@@ -132,19 +132,13 @@ func executeRunTestsV2Step(ctx context.Context, f RunFunc, r *api.StartStepReque
 					})
 				}
 			}
-			if _, ok := outputs["total_tests"]; ok {
-				outputsV2 = append(outputsV2, &api.OutputV2{
-					Key:   "total_tests",
-					Value: outputs["total_tests"],
-					Type:  api.OutputTypeString,
-				})
-			}
+			outputsV2 = append(outputsV2, summaryOutputV2...)
 			return exited, outputs, exportEnvs, artifact, outputsV2, string(optimizationState), err
 		} else if len(r.OutputVars) > 0 {
 			// only return err when output vars are expected
 			return exited, outputs, exportEnvs, artifact, nil, string(optimizationState), err
 		}
-		return exited, outputs, exportEnvs, artifact, nil, string(optimizationState), nil
+		return exited, outputs, exportEnvs, artifact, summaryOutputV2, string(optimizationState), nil
 	}
 	return exited, nil, exportEnvs, artifact, nil, string(optimizationState), err
 }
