@@ -69,8 +69,9 @@ func SaveReportSummaryToOutputs(ctx context.Context, tiConfig *tiCfg.Cfg, stepID
 	if err != nil {
 		return nil
 	}
-	// write to output file
-	log.Infof(fmt.Sprintf("Number of tests run: %d", response.TotalTests))
+	if response.TotalTests == 0 {
+		return nil
+	}
 	outputs["total_tests"] = fmt.Sprintf("%d", response.TotalTests)
 	outputs["successful_tests"] = fmt.Sprintf("%d", response.SuccessfulTests)
 	outputs["failed_tests"] = fmt.Sprintf("%d", response.FailedTests)
@@ -78,7 +79,6 @@ func SaveReportSummaryToOutputs(ctx context.Context, tiConfig *tiCfg.Cfg, stepID
 	outputs["duration_ms"] = fmt.Sprintf("%d", response.TimeMs)
 	return nil
 }
-
 func GetSummaryOutputsV2(outputs map[string]string) []*api.OutputV2 {
 	outputsV2 := []*api.OutputV2{}
 	checkAndAddSummary("total_tests", outputs, outputsV2)
