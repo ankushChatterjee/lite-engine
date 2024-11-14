@@ -135,6 +135,8 @@ func executeRunStep(ctx context.Context, f RunFunc, r *api.StartStepRequest, out
 					})
 				}
 			}
+			summaryOutputsV2 := report.GetSummaryOutputsV2(outputs)
+			outputsV2 = append(outputsV2, summaryOutputsV2...)
 		} else {
 			if len(r.OutputVars) > 0 {
 				// only return err when output vars are expected
