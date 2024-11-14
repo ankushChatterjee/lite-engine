@@ -117,6 +117,10 @@ func executeRunStep(ctx context.Context, f RunFunc, r *api.StartStepRequest, out
 	artifact, _ := fetchArtifactDataFromArtifactFile(artifactFile, out)
 	if exited != nil && exited.Exited && exited.ExitCode == 0 {
 		outputs, err := fetchExportedVarsFromEnvFile(outputFile, out, useCINewGodotEnvVersion) //nolint:govet
+		reportSaveErr := report.SaveReportSummaryToOutputs(ctx, tiConfig, step.Name, outputs, log)
+		if reportSaveErr != nil {
+			log.Warnf("Couldn't while saving report summary to outputs %s", reportSaveErr.Error())
+		}
 		outputsV2 := []*api.OutputV2{}
 		var finalErr error
 		if len(r.Outputs) > 0 {
