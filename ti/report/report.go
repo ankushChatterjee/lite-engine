@@ -79,17 +79,18 @@ func SaveReportSummaryToOutputs(ctx context.Context, tiConfig *tiCfg.Cfg, stepID
 	outputs["duration_ms"] = fmt.Sprintf("%d", response.TimeMs)
 	return nil
 }
+
 func GetSummaryOutputsV2(outputs map[string]string) []*api.OutputV2 {
 	outputsV2 := []*api.OutputV2{}
-	checkAndAddSummary("total_tests", outputs, outputsV2)
-	checkAndAddSummary("successful_tests", outputs, outputsV2)
-	checkAndAddSummary("failed_tests", outputs, outputsV2)
-	checkAndAddSummary("skipped_tests", outputs, outputsV2)
-	checkAndAddSummary("duration_ms", outputs, outputsV2)
+	outputsV2 = checkAndAddSummary("total_tests", outputs, outputsV2)
+	outputsV2 = checkAndAddSummary("successful_tests", outputs, outputsV2)
+	outputsV2 = checkAndAddSummary("failed_tests", outputs, outputsV2)
+	outputsV2 = checkAndAddSummary("skipped_tests", outputs, outputsV2)
+	outputsV2 = checkAndAddSummary("duration_ms", outputs, outputsV2)
 	return outputsV2
 }
 
-func checkAndAddSummary(metricName string, outputs map[string]string, outputsV2 []*api.OutputV2) {
+func checkAndAddSummary(metricName string, outputs map[string]string, outputsV2 []*api.OutputV2) []*api.OutputV2 {
 	if _, ok := outputs[metricName]; ok {
 		outputsV2 = append(outputsV2, &api.OutputV2{
 			Key:   metricName,
@@ -97,4 +98,5 @@ func checkAndAddSummary(metricName string, outputs map[string]string, outputsV2 
 			Type:  api.OutputTypeString,
 		})
 	}
+	return outputsV2
 }

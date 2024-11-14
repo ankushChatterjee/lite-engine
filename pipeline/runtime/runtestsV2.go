@@ -119,8 +119,7 @@ func executeRunTestsV2Step(ctx context.Context, f RunFunc, r *api.StartStepReque
 		if reportSaveErr != nil {
 			log.Errorf("Error while saving report summary to outputs %s", reportSaveErr.Error())
 		}
-		summaryOutputV2 := report.GetSummaryOutputsV2(outputs)
-
+		summaryOutputsV2 := report.GetSummaryOutputsV2(outputs)
 		if len(r.Outputs) > 0 {
 			outputsV2 := []*api.OutputV2{}
 			for _, output := range r.Outputs {
@@ -132,33 +131,46 @@ func executeRunTestsV2Step(ctx context.Context, f RunFunc, r *api.StartStepReque
 					})
 				}
 			}
-			if _, ok := outputs["total_tests"]; ok {
-				outputsV2 = append(outputsV2, &api.OutputV2{
-					Key:   "total_tests",
-					Value: outputs["total_tests"],
-					Type:  api.OutputTypeString,
-				})
-			}
-			if _, ok := outputs["successful_tests"]; ok {
-				outputsV2 = append(outputsV2, &api.OutputV2{
-					Key:   "successful_tests",
-					Value: outputs["successful_tests"],
-					Type:  api.OutputTypeString,
-				})
-			}
-			if _, ok := outputs["failed_tests"]; ok {
-				outputsV2 = append(outputsV2, &api.OutputV2{
-					Key:   "failed_tests",
-					Value: outputs["failed_tests"],
-					Type:  api.OutputTypeString,
-				})
-			}
+			outputsV2 = append(outputsV2, summaryOutputsV2...)
+
+			// if _, ok := outputs["total_tests"]; ok {
+			// 	outputsV2 = append(outputsV2, &api.OutputV2{
+			// 		Key:   "total_tests",
+			// 		Value: outputs["total_tests"],
+			// 		Type:  api.OutputTypeString,
+			// 	})
+			// }
+			// if _, ok := outputs["successful_tests"]; ok {
+			// 	outputsV2 = append(outputsV2, &api.OutputV2{
+			// 		Key:   "successful_tests",
+			// 		Value: outputs["successful_tests"],
+			// 		Type:  api.OutputTypeString,
+			// 	})
+			// }
+			// if _, ok := outputs["failed_tests"]; ok {
+			// 	outputsV2 = append(outputsV2, &api.OutputV2{
+			// 		Key:   "failed_tests",
+			// 		Value: outputs["failed_tests"],
+			// 		Type:  api.OutputTypeString,
+			// 	})
+			// }
+			// if _, ok := outputs["duration_ms"]; ok {
+			// 	outputsV2 = append(outputsV2, &api.OutputV2{
+			// 		Key:   "duration_ms",
+			// 		Value: outputs["duration_ms"],
+			// 		Type:  api.OutputTypeString,
+			// 	})
+			// }
 			return exited, outputs, exportEnvs, artifact, outputsV2, string(optimizationState), err
 		} else if len(r.OutputVars) > 0 {
 			// only return err when output vars are expected
 			return exited, outputs, exportEnvs, artifact, nil, string(optimizationState), err
 		}
-		return exited, outputs, exportEnvs, artifact, summaryOutputV2, string(optimizationState), nil
+		if len(summaryOutputsV2) == 0 {
+			return exited, outputs, exportEnvs, artifact, nil, string(optimizationState), nil
+		} else {
+			return exited, outputs, exportEnvs, artifact, summaryOutputsV2, string(optimizationState), nil
+		}
 	}
 	return exited, nil, exportEnvs, artifact, nil, string(optimizationState), err
 }
