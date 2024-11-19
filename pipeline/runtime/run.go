@@ -121,8 +121,8 @@ func executeRunStep(ctx context.Context, f RunFunc, r *api.StartStepRequest, out
 			outputs = make(map[string]string)
 		}
 		reportSaveErr := report.SaveReportSummaryToOutputs(ctx, tiConfig, step.Name, outputs, log)
-		if reportSaveErr != nil {
-			log.Warnf("Couldn't while saving report summary to outputs %s", reportSaveErr.Error())
+		if reportSaveErr == nil {
+			log.Infof("Test summary set as output variables")
 		}
 		outputsV2 := []*api.OutputV2{}
 		var finalErr error

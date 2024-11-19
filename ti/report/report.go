@@ -6,6 +6,7 @@ package report
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"path/filepath"
 	"strings"
@@ -70,7 +71,7 @@ func SaveReportSummaryToOutputs(ctx context.Context, tiConfig *tiCfg.Cfg, stepID
 		return nil
 	}
 	if response.TotalTests == 0 {
-		return nil
+		return errors.New("no tests found in the summary")
 	}
 	outputs["total_tests"] = fmt.Sprintf("%d", response.TotalTests)
 	outputs["successful_tests"] = fmt.Sprintf("%d", response.SuccessfulTests)
