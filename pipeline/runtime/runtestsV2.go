@@ -154,6 +154,7 @@ func executeRunTestsV2Step(ctx context.Context, f RunFunc, r *api.StartStepReque
 	}
 	if len(summaryOutputsV2) != 0 {
 		log.Infof("P3")
+		log.Infof("SummaryOutputsV2: %v", summaryOutputsV2)
 		return exited, summaryOutputs, exportEnvs, artifact, summaryOutputsV2, string(optimizationState), err
 	}
 	log.Infof("P4")
