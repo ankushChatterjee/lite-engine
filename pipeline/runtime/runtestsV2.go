@@ -151,7 +151,7 @@ func executeRunTestsV2Step(ctx context.Context, f RunFunc, r *api.StartStepReque
 		return exited, outputs, exportEnvs, artifact, nil, string(optimizationState), nil
 	}
 	if len(summaryOutputsV2) != 0 {
-		return exited, summaryOutputs, exportEnvs, artifact, summaryOutputsV2, string(optimizationState), nil
+		return exited, summaryOutputs, exportEnvs, artifact, summaryOutputsV2, string(optimizationState), err
 	}
 	return exited, nil, exportEnvs, artifact, nil, string(optimizationState), err
 }
