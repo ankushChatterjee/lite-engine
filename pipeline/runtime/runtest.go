@@ -92,7 +92,7 @@ func executeRunTestStep(ctx context.Context, f RunFunc, r *api.StartStepRequest,
 	exportEnvs, _ := fetchExportedVarsFromEnvFile(exportEnvFile, out, useCINewGodotEnvVersion)
 	artifact, _ := fetchArtifactDataFromArtifactFile(artifactFile, out)
 
-	outputs, err := fetchExportedVarsFromEnvFile(outputFile, out, useCINewGodotEnvVersion) //nolint:govet
+	outputs, fetchErr := fetchExportedVarsFromEnvFile(outputFile, out, useCINewGodotEnvVersion) //nolint:govet
 	if outputs == nil {
 		outputs = make(map[string]string)
 	}
@@ -120,16 +120,20 @@ func executeRunTestStep(ctx context.Context, f RunFunc, r *api.StartStepRequest,
 				}
 			}
 			outputsV2 = append(outputsV2, summaryOutputV2...)
-			return exited, outputs, exportEnvs, artifact, outputsV2, string(optimizationState), err
+			// when outputvars are defined and step has suceeded, fetchErr takes priority
+			return exited, outputs, exportEnvs, artifact, outputsV2, string(optimizationState), fetchErr
 		}
 		return exited, summaryOutputs, exportEnvs, artifact, summaryOutputV2, string(optimizationState), err
 	} else if len(r.OutputVars) > 0 {
 		if exited != nil && exited.Exited && exited.ExitCode == 0 {
-			return exited, outputs, exportEnvs, artifact, nil, string(optimizationState), err
+			// when outputvars are defined and step has suceeded, fetchErr takes priority
+			return exited, outputs, exportEnvs, artifact, nil, string(optimizationState), fetchErr
 		}
 		return exited, summaryOutputs, exportEnvs, artifact, summaryOutputV2, string(optimizationState), err
 	}
 	if len(outputs) != 0 && len(summaryOutputV2) != 0 {
+		// when there is not output vars requested, fetchErr will have non nil value
+		// In that case return err, which reflects pipeline error
 		return exited, outputs, exportEnvs, artifact, summaryOutputV2, string(optimizationState), err
 	}
 
