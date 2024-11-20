@@ -115,14 +115,21 @@ func executeRunStep(ctx context.Context, f RunFunc, r *api.StartStepRequest, out
 
 	exportEnvs, _ := fetchExportedVarsFromEnvFile(exportEnvFile, out, useCINewGodotEnvVersion)
 	artifact, _ := fetchArtifactDataFromArtifactFile(artifactFile, out)
+	summaryOutputs := make(map[string]string)
+	reportSaveErr := report.SaveReportSummaryToOutputs(ctx, tiConfig, step.Name, summaryOutputs, log)
+	if reportSaveErr == nil {
+		log.Infof("Test summary set as output variables")
+	}
+	summaryOutputsV2 := report.GetSummaryOutputsV2(summaryOutputs)
+
 	if exited != nil && exited.Exited && exited.ExitCode == 0 {
 		outputs, err := fetchExportedVarsFromEnvFile(outputFile, out, useCINewGodotEnvVersion) //nolint:govet
 		if outputs == nil {
 			outputs = make(map[string]string)
 		}
-		reportSaveErr := report.SaveReportSummaryToOutputs(ctx, tiConfig, step.Name, outputs, log)
-		if reportSaveErr == nil {
-			log.Infof("Test summary set as output variables")
+		// add summary outputs to current outputs map
+		for k, v := range summaryOutputs {
+			outputs[k] = v
 		}
 		outputsV2 := []*api.OutputV2{}
 		var finalErr error
@@ -138,7 +145,6 @@ func executeRunStep(ctx context.Context, f RunFunc, r *api.StartStepRequest, out
 					})
 				}
 			}
-			summaryOutputsV2 := report.GetSummaryOutputsV2(outputs)
 			outputsV2 = append(outputsV2, summaryOutputsV2...)
 		} else {
 			if len(r.OutputVars) > 0 {
@@ -173,5 +179,6 @@ func executeRunStep(ctx context.Context, f RunFunc, r *api.StartStepRequest, out
 
 		return exited, outputs, exportEnvs, artifact, outputsV2, string(optimizationState), finalErr
 	}
-	return exited, nil, exportEnvs, artifact, nil, string(optimizationState), err
+	// even if the step failed, we still want to return the summary outputs
+	return exited, summaryOutputs, exportEnvs, artifact, summaryOutputsV2, string(optimizationState), err
 }

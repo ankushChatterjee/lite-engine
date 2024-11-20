@@ -96,11 +96,16 @@ func executeRunTestStep(ctx context.Context, f RunFunc, r *api.StartStepRequest,
 	if outputs == nil {
 		outputs = make(map[string]string)
 	}
-	reportSaveErr := report.SaveReportSummaryToOutputs(ctx, tiConfig, step.Name, outputs, log)
+	summaryOutputs := make(map[string]string)
+	reportSaveErr := report.SaveReportSummaryToOutputs(ctx, tiConfig, step.Name, summaryOutputs, log)
 	if reportSaveErr != nil {
 		log.Warnf("Error while saving report summary to outputs %s", reportSaveErr.Error())
 	}
-	summaryOutputV2 := report.GetSummaryOutputsV2(outputs)
+	summaryOutputV2 := report.GetSummaryOutputsV2(summaryOutputs)
+	// copy to outputs, we need a separate summaryOutput map to return when step fials
+	for k, v := range summaryOutputs {
+		outputs[k] = v
+	}
 
 	if len(r.Outputs) > 0 {
 		if exited != nil && exited.Exited && exited.ExitCode == 0 {
@@ -117,10 +122,12 @@ func executeRunTestStep(ctx context.Context, f RunFunc, r *api.StartStepRequest,
 			outputsV2 = append(outputsV2, summaryOutputV2...)
 			return exited, outputs, exportEnvs, artifact, outputsV2, string(optimizationState), err
 		}
+		return exited, summaryOutputs, exportEnvs, artifact, summaryOutputV2, string(optimizationState), err
 	} else if len(r.OutputVars) > 0 {
 		if exited != nil && exited.Exited && exited.ExitCode == 0 {
 			return exited, outputs, exportEnvs, artifact, nil, string(optimizationState), err
 		}
+		return exited, summaryOutputs, exportEnvs, artifact, summaryOutputV2, string(optimizationState), err
 	}
 	if len(outputs) != 0 && len(summaryOutputV2) != 0 {
 		return exited, outputs, exportEnvs, artifact, summaryOutputV2, string(optimizationState), nil
