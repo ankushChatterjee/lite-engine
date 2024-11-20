@@ -120,6 +120,7 @@ func executeRunTestsV2Step(ctx context.Context, f RunFunc, r *api.StartStepReque
 	}
 	summaryOutputsV2 := report.GetSummaryOutputsV2(summaryOutputs)
 
+	log.Infof("P1")
 	if exited != nil && exited.Exited && exited.ExitCode == 0 {
 		outputs, err := fetchExportedVarsFromEnvFile(outputFile, out, useCINewGodotEnvVersion) //nolint:govet
 		if outputs == nil {
@@ -142,8 +143,9 @@ func executeRunTestsV2Step(ctx context.Context, f RunFunc, r *api.StartStepReque
 			outputsV2 = append(outputsV2, summaryOutputsV2...)
 			return exited, outputs, exportEnvs, artifact, outputsV2, string(optimizationState), err
 		} else if len(r.OutputVars) > 0 {
+			log.Infof("P2")
 			// only return err when output vars are expected
-			return exited, outputs, exportEnvs, artifact, nil, string(optimizationState), err
+			return exited, summaryOutputs, exportEnvs, artifact, summaryOutputsV2, string(optimizationState), err
 		}
 		if len(summaryOutputsV2) != 0 {
 			return exited, outputs, exportEnvs, artifact, summaryOutputsV2, string(optimizationState), nil
@@ -151,8 +153,10 @@ func executeRunTestsV2Step(ctx context.Context, f RunFunc, r *api.StartStepReque
 		return exited, outputs, exportEnvs, artifact, nil, string(optimizationState), nil
 	}
 	if len(summaryOutputsV2) != 0 {
+		log.Infof("P3")
 		return exited, summaryOutputs, exportEnvs, artifact, summaryOutputsV2, string(optimizationState), err
 	}
+	log.Infof("P4")
 	return exited, nil, exportEnvs, artifact, nil, string(optimizationState), err
 }
 
