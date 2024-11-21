@@ -151,6 +151,9 @@ func executeRunStep(ctx context.Context, f RunFunc, r *api.StartStepRequest, out
 				// only return err when output vars are expected
 				finalErr = err
 			}
+			for k, v := range summaryOutputs {
+				outputs[k] = v
+			}
 			for key, value := range outputs {
 				output := &api.OutputV2{
 					Key:   key,
