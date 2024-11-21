@@ -182,6 +182,9 @@ func executeRunStep(ctx context.Context, f RunFunc, r *api.StartStepRequest, out
 
 		return exited, outputs, exportEnvs, artifact, outputsV2, string(optimizationState), finalErr
 	}
+	if len(summaryOutputsV2) == 0 {
+		return exited, nil, exportEnvs, artifact, nil, string(optimizationState), err
+	}
 	// even if the step failed, we still want to return the summary outputs
 	return exited, summaryOutputs, exportEnvs, artifact, summaryOutputsV2, string(optimizationState), err
 }
