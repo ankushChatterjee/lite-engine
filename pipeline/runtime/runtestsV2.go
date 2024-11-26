@@ -120,8 +120,10 @@ func executeRunTestsV2Step(ctx context.Context, f RunFunc, r *api.StartStepReque
 	summaryOutputsV2 := report.GetSummaryOutputsV2(summaryOutputs)
 	if report.TestSummaryAsOutputEnabled() {
 		log.Infof("ENV_VAR is set: %d", len(summaryOutputsV2))
+	} else {
+		log.Infof("ENV_VAR is not set: %d", len(summaryOutputsV2))
 	}
-
+	log.Infof("p0")
 	if exited != nil && exited.Exited && exited.ExitCode == 0 {
 		outputs, err := fetchExportedVarsFromEnvFile(outputFile, out, useCINewGodotEnvVersion) //nolint:govet
 		if report.TestSummaryAsOutputEnabled() {
