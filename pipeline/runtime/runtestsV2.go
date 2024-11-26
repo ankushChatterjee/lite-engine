@@ -128,7 +128,7 @@ func executeRunTestsV2Step(ctx context.Context, f RunFunc, r *api.StartStepReque
 	}
 	// print all environment variables and their values
 	for _, e := range os.Environ() {
-		log.Infof("ENV_VAR: %s", e)
+		log.Infof("GO_ENV_VAR: %s", e)
 	}
 	log.Infof("p0")
 	if exited != nil && exited.Exited && exited.ExitCode == 0 {
