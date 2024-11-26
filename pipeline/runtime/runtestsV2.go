@@ -118,7 +118,7 @@ func executeRunTestsV2Step(ctx context.Context, f RunFunc, r *api.StartStepReque
 		log.Errorf("Error while saving report summary to outputs %s", reportSaveErr.Error())
 	}
 	summaryOutputsV2 := report.GetSummaryOutputsV2(summaryOutputs, r.Envs)
-	if report.TestSummaryAsOutputEnabled(r.Envs) {
+	if report.TestSummaryAsOutputEnabled(step.Envs) {
 		log.Infof("ENV_VAR is set: %d", len(summaryOutputsV2))
 	} else {
 		log.Infof("ENV_VAR is not set: %d", len(summaryOutputsV2))
