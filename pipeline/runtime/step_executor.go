@@ -125,7 +125,7 @@ func (e *StepExecutor) StartStepWithStatusUpdate(ctx context.Context, r *api.Sta
 			if r.StageRuntimeID != "" && len(pollResponse.Envs) > 0 {
 				pipeline.GetEnvState().Add(r.StageRuntimeID, pollResponse.Envs)
 			}
-			resp = convertPollResponse(pollResponse)
+			resp = convertPollResponse(pollResponse, r.Envs)
 			done <- resp
 		}()
 
@@ -496,11 +496,11 @@ func convertStatus(status StepStatus) *api.PollStepResponse { //nolint:gocritic
 	return r
 }
 
-func convertPollResponse(r *api.PollStepResponse) api.VMTaskExecutionResponse {
+func convertPollResponse(r *api.PollStepResponse, envs map[string]string) api.VMTaskExecutionResponse {
 	if r.Error == "" {
 		return api.VMTaskExecutionResponse{CommandExecutionStatus: api.Success, OutputVars: r.Outputs, Artifact: r.Artifact, Outputs: r.OutputV2, OptimizationState: r.OptimizationState}
 	}
-	if report.TestSummaryAsOutputEnabled() {
+	if report.TestSummaryAsOutputEnabled(envs) {
 		return api.VMTaskExecutionResponse{CommandExecutionStatus: api.Failure, OutputVars: r.Outputs, Outputs: r.OutputV2, ErrorMessage: r.Error, OptimizationState: r.OptimizationState}
 	}
 	return api.VMTaskExecutionResponse{CommandExecutionStatus: api.Failure, ErrorMessage: r.Error, OptimizationState: r.OptimizationState}

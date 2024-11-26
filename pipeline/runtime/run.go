@@ -116,15 +116,15 @@ func executeRunStep(ctx context.Context, f RunFunc, r *api.StartStepRequest, out
 	exportEnvs, _ := fetchExportedVarsFromEnvFile(exportEnvFile, out, useCINewGodotEnvVersion)
 	artifact, _ := fetchArtifactDataFromArtifactFile(artifactFile, out)
 	summaryOutputs := make(map[string]string)
-	reportSaveErr := report.SaveReportSummaryToOutputs(ctx, tiConfig, step.Name, summaryOutputs, log)
+	reportSaveErr := report.SaveReportSummaryToOutputs(ctx, tiConfig, step.Name, summaryOutputs, log, r.Envs)
 	if reportSaveErr == nil {
 		log.Infof("Test summary set as output variables")
 	}
-	summaryOutputsV2 := report.GetSummaryOutputsV2(summaryOutputs)
+	summaryOutputsV2 := report.GetSummaryOutputsV2(summaryOutputs, r.Envs)
 
 	if exited != nil && exited.Exited && exited.ExitCode == 0 {
 		outputs, err := fetchExportedVarsFromEnvFile(outputFile, out, useCINewGodotEnvVersion) //nolint:govet
-		if report.TestSummaryAsOutputEnabled() {
+		if report.TestSummaryAsOutputEnabled(r.Envs) {
 			if outputs == nil {
 				outputs = make(map[string]string)
 			}
@@ -147,7 +147,7 @@ func executeRunStep(ctx context.Context, f RunFunc, r *api.StartStepRequest, out
 					})
 				}
 			}
-			if report.TestSummaryAsOutputEnabled() {
+			if report.TestSummaryAsOutputEnabled(r.Envs) {
 				outputsV2 = append(outputsV2, summaryOutputsV2...)
 			}
 		} else {
@@ -155,7 +155,7 @@ func executeRunStep(ctx context.Context, f RunFunc, r *api.StartStepRequest, out
 				// only return err when output vars are expected
 				finalErr = err
 			}
-			if report.TestSummaryAsOutputEnabled() {
+			if report.TestSummaryAsOutputEnabled(r.Envs) {
 				for k, v := range summaryOutputs {
 					outputs[k] = v
 				}
@@ -188,7 +188,7 @@ func executeRunStep(ctx context.Context, f RunFunc, r *api.StartStepRequest, out
 
 		return exited, outputs, exportEnvs, artifact, outputsV2, string(optimizationState), finalErr
 	}
-	if len(summaryOutputsV2) == 0 || !report.TestSummaryAsOutputEnabled() {
+	if len(summaryOutputsV2) == 0 || !report.TestSummaryAsOutputEnabled(r.Envs) {
 		return exited, nil, exportEnvs, artifact, nil, string(optimizationState), err
 	}
 	// even if the step failed, we still want to return the summary outputs

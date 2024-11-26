@@ -8,7 +8,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"os"
 	"path/filepath"
 	"strings"
 	"time"
@@ -55,8 +54,8 @@ func ParseAndUploadTests(ctx context.Context, report api.TestReport, workDir, st
 	return nil
 }
 
-func SaveReportSummaryToOutputs(ctx context.Context, tiConfig *tiCfg.Cfg, stepID string, outputs map[string]string, log *logrus.Logger) error {
-	if !TestSummaryAsOutputEnabled() {
+func SaveReportSummaryToOutputs(ctx context.Context, tiConfig *tiCfg.Cfg, stepID string, outputs map[string]string, log *logrus.Logger, envs map[string]string) error {
+	if !TestSummaryAsOutputEnabled(envs) {
 		return nil
 	}
 	tiClient := tiConfig.GetClient()
@@ -85,9 +84,9 @@ func SaveReportSummaryToOutputs(ctx context.Context, tiConfig *tiCfg.Cfg, stepID
 	return nil
 }
 
-func GetSummaryOutputsV2(outputs map[string]string) []*api.OutputV2 {
+func GetSummaryOutputsV2(outputs map[string]string, envs map[string]string) []*api.OutputV2 {
 	outputsV2 := []*api.OutputV2{}
-	if !TestSummaryAsOutputEnabled() {
+	if !TestSummaryAsOutputEnabled(envs) {
 		return outputsV2
 	}
 	outputsV2 = checkAndAddSummary("total_tests", outputs, outputsV2)
@@ -109,6 +108,10 @@ func checkAndAddSummary(metricName string, outputs map[string]string, outputsV2 
 	return outputsV2
 }
 
-func TestSummaryAsOutputEnabled() bool {
-	return os.Getenv("HARNESS_CI_TEST_SUMMARY_OUTPUT_FF") == "true"
+func TestSummaryAsOutputEnabled(envs map[string]string) bool {
+	value, present := envs["HARNESS_CI_TEST_SUMMARY_OUTPUT_FF"]
+	if !present {
+		return false
+	}
+	return value == "true"
 }
