@@ -118,11 +118,16 @@ func executeRunTestsV2Step(ctx context.Context, f RunFunc, r *api.StartStepReque
 		log.Errorf("Error while saving report summary to outputs %s", reportSaveErr.Error())
 	}
 	summaryOutputsV2 := report.GetSummaryOutputsV2(summaryOutputs)
+	if report.TestSummaryAsOutputEnabled() {
+		log.Infof("ENV_VAR is set: %d", len(summaryOutputsV2))
+	}
 
 	if exited != nil && exited.Exited && exited.ExitCode == 0 {
 		outputs, err := fetchExportedVarsFromEnvFile(outputFile, out, useCINewGodotEnvVersion) //nolint:govet
 		if report.TestSummaryAsOutputEnabled() {
+			log.Infof("p1")
 			if outputs == nil {
+				log.Infof("p2")
 				outputs = make(map[string]string)
 			}
 
@@ -142,22 +147,26 @@ func executeRunTestsV2Step(ctx context.Context, f RunFunc, r *api.StartStepReque
 				}
 			}
 			if report.TestSummaryAsOutputEnabled() {
+				log.Infof("p3")
 				outputsV2 = append(outputsV2, summaryOutputsV2...)
 			}
 			return exited, outputs, exportEnvs, artifact, outputsV2, string(optimizationState), err
 		} else if len(r.OutputVars) > 0 {
 			// only return err when output vars are expected
 			if report.TestSummaryAsOutputEnabled() {
+				log.Infof("p4")
 				return exited, summaryOutputs, exportEnvs, artifact, summaryOutputsV2, string(optimizationState), err
 			}
 			return exited, summaryOutputs, exportEnvs, artifact, nil, string(optimizationState), err
 		}
 		if len(summaryOutputsV2) != 0 && report.TestSummaryAsOutputEnabled() {
+			log.Infof("p5")
 			return exited, outputs, exportEnvs, artifact, summaryOutputsV2, string(optimizationState), nil
 		}
 		return exited, outputs, exportEnvs, artifact, nil, string(optimizationState), nil
 	}
 	if len(summaryOutputsV2) != 0 && report.TestSummaryAsOutputEnabled() {
+		log.Infof("p6")
 		return exited, summaryOutputs, exportEnvs, artifact, summaryOutputsV2, string(optimizationState), err
 	}
 	return exited, nil, exportEnvs, artifact, nil, string(optimizationState), err
