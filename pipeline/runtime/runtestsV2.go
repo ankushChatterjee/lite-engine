@@ -126,6 +126,10 @@ func executeRunTestsV2Step(ctx context.Context, f RunFunc, r *api.StartStepReque
 	for k, v := range r.Envs {
 		log.Infof("ENV_VAR: %s, %s", k, v)
 	}
+	// print all environment variables and their values
+	for _, e := range os.Environ() {
+		log.Infof("ENV_VAR: %s", e)
+	}
 	log.Infof("p0")
 	if exited != nil && exited.Exited && exited.ExitCode == 0 {
 		outputs, err := fetchExportedVarsFromEnvFile(outputFile, out, useCINewGodotEnvVersion) //nolint:govet
