@@ -71,7 +71,7 @@ func SaveReportSummaryToOutputs(ctx context.Context, tiConfig *tiCfg.Cfg, stepID
 	}
 	response, err := tiClient.Summary(ctx, summaryRequest)
 	if err != nil {
-		return nil
+		return err
 	}
 	if response.TotalTests == 0 {
 		return errors.New("no tests found in the summary")

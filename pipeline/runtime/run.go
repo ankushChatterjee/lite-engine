@@ -117,7 +117,7 @@ func executeRunStep(ctx context.Context, f RunFunc, r *api.StartStepRequest, out
 	artifact, _ := fetchArtifactDataFromArtifactFile(artifactFile, out)
 	summaryOutputs := make(map[string]string)
 	reportSaveErr := report.SaveReportSummaryToOutputs(ctx, tiConfig, step.Name, summaryOutputs, log, r.Envs)
-	if reportSaveErr == nil {
+	if reportSaveErr == nil && report.TestSummaryAsOutputEnabled(r.Envs) {
 		log.Infof("Test summary set as output variables")
 	}
 	summaryOutputsV2 := report.GetSummaryOutputsV2(summaryOutputs, r.Envs)
