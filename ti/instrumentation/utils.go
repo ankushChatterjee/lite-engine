@@ -233,7 +233,7 @@ func getChangedFiles(ctx context.Context, workspace string, log *logrus.Logger, 
 		}
 	}
 	cmd.Env = toEnv(envs)
-	cmd.Dir = workspace
+	cmd.Dir = "C:\\harness"
 	out, err := cmd.CombinedOutput()
 	if err != nil {
 		log.WithError(err).WithField("output", string(out)).Errorln("failed to get changed files")
