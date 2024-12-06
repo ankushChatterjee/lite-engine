@@ -60,6 +60,7 @@ func executeRunTestsV2Step(ctx context.Context, f RunFunc, r *api.StartStepReque
 	setTiEnvVariables(step, tiConfig)
 	step.Entrypoint = r.RunTestsV2.Entrypoint
 
+	log.Println("Runnint with workdir : ", r.WorkingDir)
 	preCmd, err := SetupRunTestV2(ctx, &r.RunTestsV2, step.Name, r.WorkingDir, log, r.Envs, tiConfig)
 	if err != nil {
 		return nil, nil, nil, nil, nil, string(optimizationState), err
