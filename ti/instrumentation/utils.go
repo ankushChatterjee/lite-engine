@@ -679,6 +679,9 @@ func IsPushTriggerExecution(cfg *tiCfg.Cfg) bool {
 func toEnv(env map[string]string) []string {
 	var envs []string
 	for k, v := range env {
+		if k == "CORECLR_PROFILER" || k == "CORECLR_ENABLE_PROFILING" || k == "CORECLR_PROFILER_PATH" || k == "HARNESS_TI_AGENT_ENABLED" {
+			continue
+		}
 		if v != "" {
 			envs = append(envs, k+"="+v)
 		}
