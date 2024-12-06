@@ -236,6 +236,11 @@ func getChangedFiles(ctx context.Context, workspace string, log *logrus.Logger, 
 	cmd.Dir = workspace
 	out, err := cmd.CombinedOutput()
 	if err != nil {
+		log.WithError(err).WithField("output", string(out)).Errorln("failed to get changed files")
+		log.Println("Command: ", cmd.String())
+		log.Println("Output: ", string(out))
+		log.Infof("Error: %v", err)
+		log.Infof("Output of the command: %v", string(out))
 		return nil, err
 	}
 
