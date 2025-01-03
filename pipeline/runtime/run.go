@@ -123,6 +123,8 @@ func executeRunStep(ctx context.Context, f RunFunc, r *api.StartStepRequest, out
 		if reportSaveErr == nil && report.TestSummaryAsOutputEnabled(r.Envs) {
 			log.Infof("Test summary set as output variables")
 		}
+	} else {
+		log.Infof("No test summary set")
 	}
 	summaryOutputsV2 := report.GetSummaryOutputsV2(summaryOutputs, r.Envs)
 
