@@ -64,10 +64,10 @@ func Test_CollectRunTestsV2Data(t *testing.T) {
 			collectCgFn = func(ctx context.Context, stepID string, timeMs int64, log *logrus.Logger, start time.Time, tiConfig *tiCfg.Cfg, dir string) error {
 				return tc.cgErr
 			}
-			collectTestReportsFn = func(ctx context.Context, report api.TestReport, workDir, stepID string, log *logrus.Logger, start time.Time, tiConfig *tiCfg.Cfg, testMetadata *api.TestIntelligenceMetaData, envs map[string]string) error {
-				return tc.crErr
+			collectTestReportsFn = func(ctx context.Context, report api.TestReport, workDir, stepID string, log *logrus.Logger, start time.Time, tiConfig *tiCfg.Cfg, testMetadata *api.TestIntelligenceMetaData, envs map[string]string) ([]*types.TestCase, error) {
+				return *&[]*types.TestCase{}, tc.crErr
 			}
-			err := collectTestReportsAndCg(ctx, log, &apiReq, time.Now(), stepName, &tiConfig, &api.TelemetryData{})
+			err := collectTestReportsAndCg(ctx, log, &apiReq, time.Now(), stepName, &tiConfig, &api.TelemetryData{}, map[string]string{})
 			assert.Equal(t, tc.collectionErr, err)
 		})
 	}
