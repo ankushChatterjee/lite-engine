@@ -157,7 +157,7 @@ func executeRunTestStep(ctx context.Context, f RunFunc, r *api.StartStepRequest,
 // collectRunTestData collects callgraph and test reports after executing the step
 func collectRunTestData(ctx context.Context, log *logrus.Logger, r *api.StartStepRequest, start time.Time, stepName string, tiConfig *tiCfg.Cfg, telemetryData *api.TelemetryData) error {
 	cgStart := time.Now()
-	cgErr := collectCgFn(ctx, stepName, time.Since(start).Milliseconds(), log, cgStart, tiConfig, cgDir)
+	cgErr := collectCgFn(ctx, stepName, time.Since(start).Milliseconds(), log, cgStart, tiConfig, cgDir, false)
 	if cgErr != nil {
 		log.WithField("error", cgErr).Errorln(fmt.Sprintf("Unable to collect callgraph. Time taken: %s", time.Since(cgStart)))
 		cgErr = fmt.Errorf("failed to collect callgraph: %s", cgErr)
