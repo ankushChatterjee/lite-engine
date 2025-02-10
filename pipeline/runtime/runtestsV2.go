@@ -674,6 +674,7 @@ func collectTestReportsAndCg(ctx context.Context, log *logrus.Logger, r *api.Sta
 			for _, test := range tests {
 				if test.Result.Status == types.StatusFailed {
 					testFailed = true
+					log.Infof("Test %s failed. setting testFailed true", test.Name)
 					break
 				}
 			}
