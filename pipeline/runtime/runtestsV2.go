@@ -48,7 +48,7 @@ const (
 	dotNetAgentV2LibLinux   = "net-agent.so"
 	dotNetAgentV2LibWin     = "net-agent.dll"
 	dotNetAgentV2Zip        = "dotnet-agent.zip"
-	dotNetAgentV2Path       = "/dotnet/v2/"
+	dotNetAgentV2Path       = "/v2agents/"
 	dotNetConfigV2Dir       = "%s/ti/v2/dotnet/config"
 	javascriptRequireFile   = "ti-agent.cjs"
 )
