@@ -30,7 +30,10 @@ func Upload(ctx context.Context, stepID string, timeMs int64, log *logrus.Logger
 		return nil
 	}
 
-	encCg, err := encodeCg(fmt.Sprintf(dir, cfg.GetDataDir()), log)
+	// Create step-specific data directory path
+	stepDataDir := filepath.Join(cfg.GetDataDir(), stepID)
+
+	encCg, err := encodeCg(fmt.Sprintf(dir, stepDataDir), log)
 	if err != nil {
 		return errors.Wrap(err, "failed to get avro encoded callgraph")
 	}
