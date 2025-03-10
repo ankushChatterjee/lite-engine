@@ -7,9 +7,12 @@ package handler
 import (
 	"context"
 	"encoding/json"
+	"fmt"
+	"math/rand"
 	"net/http"
 	"os"
 	"runtime"
+	"strconv"
 	"time"
 
 	"github.com/harness/lite-engine/api"
@@ -115,7 +118,11 @@ func setProxyEnvs(environment map[string]string) {
 }
 
 func getTiCfg(t *api.TIConfig, mtlsConfig *spec.MtlsConfig) tiCfg.Cfg {
+	// Generate a random number for unique folder path
+	rand.Seed(time.Now().UnixNano())
+	uniqueFolderPath := fmt.Sprintf("%s/%s", pipeline.SharedVolPath, "h"+strconv.Itoa(rand.Int()))
+
 	cfg := tiCfg.New(t.URL, t.Token, t.AccountID, t.OrgID, t.ProjectID, t.PipelineID, t.BuildID, t.StageID, t.Repo,
-		t.Sha, t.CommitLink, t.SourceBranch, t.TargetBranch, t.CommitBranch, pipeline.SharedVolPath, t.ParseSavings, false, mtlsConfig.ClientCert, mtlsConfig.ClientCertKey)
+		t.Sha, t.CommitLink, t.SourceBranch, t.TargetBranch, t.CommitBranch, uniqueFolderPath, t.ParseSavings, false, mtlsConfig.ClientCert, mtlsConfig.ClientCertKey)
 	return cfg
 }
