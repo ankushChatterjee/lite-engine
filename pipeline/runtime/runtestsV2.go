@@ -170,7 +170,8 @@ func executeRunTestsV2Step(ctx context.Context, f RunFunc, r *api.StartStepReque
 func SetupRunTestV2(ctx context.Context, config *api.RunTestsV2Config, stepID, workspace string, log *logrus.Logger, envs map[string]string, tiConfig *tiCfg.Cfg, testMetadata *types.TestIntelligenceMetaData) (string, error) {
 	agentPaths := make(map[string]string)
 	fs := filesystem.New()
-	tmpFilePath := tiConfig.GetDataDir()
+	tmpFilePath := filepath.Join(tiConfig.GetDataDir(), stepID)
+
 	var preCmd, filterfilePath string
 	if config.IntelligenceMode {
 		// This variable should use to pick up the qa version of the agents - this will allow a staging like option for
