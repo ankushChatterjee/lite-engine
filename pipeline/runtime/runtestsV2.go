@@ -170,10 +170,12 @@ func executeRunTestsV2Step(ctx context.Context, f RunFunc, r *api.StartStepReque
 func SetupRunTestV2(ctx context.Context, config *api.RunTestsV2Config, stepID, workspace string, log *logrus.Logger, envs map[string]string, tiConfig *tiCfg.Cfg, testMetadata *types.TestIntelligenceMetaData) (string, error) {
 	agentPaths := make(map[string]string)
 	fs := filesystem.New()
-	tmpFilePath := filepath.Join(tiConfig.GetDataDir(), stepID)
+	uniqueID := tiConfig.GetAccountID() + "_" + tiConfig.GetProjectID() + "_" + tiConfig.GetPipelineID() + "_" + stepID
+	tmpFilePath := filepath.Join(tiConfig.GetDataDir(), instrumentation.GetUniqueHash(uniqueID))
 
 	var preCmd, filterfilePath string
 	if config.IntelligenceMode {
+		// This variable should use to pick up the qa version of the agents - this will allow a staging like option for
 		// This variable should use to pick up the qa version of the agents - this will allow a staging like option for
 		// the agents, and would also help in diagnosing issues when needed. The value we look for is specific not a
 		// simple "true" to have something that is more unique and hard to guess.

@@ -13,6 +13,7 @@ import (
 	"github.com/harness/lite-engine/internal/filesystem"
 	"github.com/harness/lite-engine/ti/avro"
 	tiCfg "github.com/harness/lite-engine/ti/config"
+	"github.com/harness/lite-engine/ti/instrumentation"
 	"github.com/mattn/go-zglob"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
@@ -29,13 +30,13 @@ func Upload(ctx context.Context, stepID string, timeMs int64, log *logrus.Logger
 		log.Infoln("Skipping call graph collection since instrumentation was ignored")
 		return nil
 	}
-
+	uniqueID := cfg.GetAccountID() + "_" + cfg.GetProjectID() + "_" + cfg.GetPipelineID() + "_" + stepID
 	// Create step-specific data directory path
-	stepDataDir := filepath.Join(cfg.GetDataDir(), stepID)
+	stepDataDir := filepath.Join(cfg.GetDataDir(), instrumentation.GetUniqueHash(uniqueID))
 
 	encCg, err := encodeCg(fmt.Sprintf(dir, stepDataDir), log)
 	if err != nil {
-		return errors.Wrap(err, "failed to get avro encoded callgraph")
+		return errors.Wrap(err, "failecd to get avro encoded callgraph")
 	}
 
 	c := cfg.GetClient()

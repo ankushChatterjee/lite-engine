@@ -6,6 +6,8 @@ package instrumentation
 
 import (
 	"context"
+	"crypto/sha256"
+	"encoding/hex"
 	"fmt"
 	"io"
 	"os"
@@ -677,6 +679,13 @@ func toEnv(env map[string]string) []string {
 		}
 	}
 	return envs
+}
+
+func GetUniqueHash(uniqueId string) string {
+	hasher := sha256.New()
+	hasher.Write([]byte(uniqueId))
+	fullHash := hex.EncodeToString(hasher.Sum(nil))
+	return fullHash[:4]
 }
 
 func GetStepStrategyIteration(envs map[string]string) (int, error) {
