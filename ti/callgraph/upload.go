@@ -25,14 +25,13 @@ const (
 )
 
 // Upload method uploads the callgraph.
-func Upload(ctx context.Context, stepID string, timeMs int64, log *logrus.Logger, start time.Time, cfg *tiCfg.Cfg, dir string, hasFailed bool) error {
+func Upload(ctx context.Context, stepID string, timeMs int64, log *logrus.Logger, start time.Time, cfg *tiCfg.Cfg, dir string, uniqueStepId string, hasFailed bool) error {
 	if cfg.GetIgnoreInstr() {
 		log.Infoln("Skipping call graph collection since instrumentation was ignored")
 		return nil
 	}
-	uniqueID := cfg.GetAccountID() + "_" + cfg.GetProjectID() + "_" + cfg.GetPipelineID() + "_" + stepID
 	// Create step-specific data directory path
-	stepDataDir := filepath.Join(cfg.GetDataDir(), instrumentation.GetUniqueHash(uniqueID))
+	stepDataDir := filepath.Join(cfg.GetDataDir(), instrumentation.GetUniqueHash(uniqueStepId, cfg))
 
 	encCg, err := encodeCg(fmt.Sprintf(dir, stepDataDir), log)
 	if err != nil {
@@ -42,11 +41,11 @@ func Upload(ctx context.Context, stepID string, timeMs int64, log *logrus.Logger
 	c := cfg.GetClient()
 
 	if hasFailed {
-		if cgErr := c.UploadCgFailedTest(ctx, stepID, cfg.GetSourceBranch(), cfg.GetTargetBranch(), timeMs, encCg); cgErr != nil {
+		if cgErr := c.UploadCgFailedTest(ctx, stepID, cfg.GetSourceBranch(), cfg.GetTargetBranch(), time.Since(start).Milliseconds(), encCg); cgErr != nil {
 			return cgErr
 		}
 	} else {
-		if cgErr := c.UploadCg(ctx, stepID, cfg.GetSourceBranch(), cfg.GetTargetBranch(), timeMs, encCg); cgErr != nil {
+		if cgErr := c.UploadCg(ctx, stepID, cfg.GetSourceBranch(), cfg.GetTargetBranch(), time.Since(start).Milliseconds(), encCg); cgErr != nil {
 			return cgErr
 		}
 	}

@@ -249,10 +249,9 @@ func computeSelectedTests(ctx context.Context, config *api.RunTestConfig, log *l
 	config.RunOnlySelectedTests = true
 }
 
-func GetCmd(ctx context.Context, config *api.RunTestConfig, stepID, workspace string, log *logrus.Logger, envs map[string]string, cfg *tiCfg.Cfg, testMetadata *types.TestIntelligenceMetaData) (string, error) {
+func GetCmd(ctx context.Context, config *api.RunTestConfig, stepID, workspace string, uniqueStepId string, log *logrus.Logger, envs map[string]string, cfg *tiCfg.Cfg, testMetadata *types.TestIntelligenceMetaData) (string, error) {
 	fs := filesystem.New()
-	uniqueID := cfg.GetAccountID() + "_" + cfg.GetProjectID() + "_" + cfg.GetPipelineID() + "_" + stepID
-	tmpFilePath := filepath.Join(cfg.GetDataDir(), GetUniqueHash(uniqueID))
+	tmpFilePath := filepath.Join(cfg.GetDataDir(), GetUniqueHash(uniqueStepId, cfg))
 
 	if config.TestSplitStrategy == "" {
 		config.TestSplitStrategy = defaultTestSplitStrategy
