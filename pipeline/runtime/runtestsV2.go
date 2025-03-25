@@ -225,7 +225,7 @@ func SetupRunTestV2(ctx context.Context, config *api.RunTestsV2Config, stepID, w
 		if err != nil || pythonArtifactDir == "" {
 			return preCmd, fmt.Errorf("failed to set config file or env variable to inject agent, %s", err)
 		}
-		err = createSelectedTestFile(ctx, fs, stepID, workspace, log, tiConfig, tmpFilePath, envs, config, filterfilePath, testMetadata)
+		err = createSelectedTestFile(ctx, fs, stepID, workspace, log, tiConfig, tiConfig.GetDataDir(), envs, config, filterfilePath, testMetadata)
 		if err != nil {
 			return preCmd, fmt.Errorf("error while creating filter file %s", err)
 		}
@@ -400,7 +400,7 @@ func getPreCmd(workspace, tmpFilePath string, fs filesystem.FileSystem, log *log
 		return "", "", err
 	}
 
-	filterFilePath = getFilterFilePath(tmpFilePath, splitIdx)
+	filterFilePath = getFilterFilePath(tiConfig.GetDataDir(), splitIdx)
 
 	envs["TI"] = "1"
 	envs["TI_V2"] = "1"
