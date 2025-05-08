@@ -13,6 +13,7 @@ import (
 	"github.com/harness/lite-engine/internal/filesystem"
 	"github.com/harness/lite-engine/ti/avro"
 	tiCfg "github.com/harness/lite-engine/ti/config"
+	"github.com/harness/ti-client/types"
 	"github.com/mattn/go-zglob"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
@@ -24,13 +25,13 @@ const (
 )
 
 // Upload method uploads the callgraph.
-func Upload(ctx context.Context, stepID string, timeMs int64, log *logrus.Logger, start time.Time, cfg *tiCfg.Cfg, dir string, hasFailed bool) error {
+func Upload(ctx context.Context, stepID string, timeMs int64, log *logrus.Logger, start time.Time, cfg *tiCfg.Cfg, dir string, hasFailed bool, tests []*types.TestCase) error {
 	if cfg.GetIgnoreInstr() {
 		log.Infoln("Skipping call graph collection since instrumentation was ignored")
 		return nil
 	}
 
-	encCg, err := encodeCg(fmt.Sprintf(dir, cfg.GetDataDir()), log)
+	encCg, err := encodeCg(fmt.Sprintf(dir, cfg.GetDataDir()), log, tests)
 	if err != nil {
 		return errors.Wrap(err, "failed to get avro encoded callgraph")
 	}
@@ -52,7 +53,7 @@ func Upload(ctx context.Context, stepID string, timeMs int64, log *logrus.Logger
 }
 
 // encodeCg reads all files of specified format from datadir folder and returns byte array of avro encoded format
-func encodeCg(dataDir string, log *logrus.Logger) ([]byte, error) {
+func encodeCg(dataDir string, log *logrus.Logger, tests []*types.TestCase) ([]byte, error) {
 	var parser Parser
 	fs := filesystem.New()
 
@@ -65,6 +66,14 @@ func encodeCg(dataDir string, log *logrus.Logger) ([]byte, error) {
 	}
 	parser = NewCallGraphParser(log, fs)
 	cg, err := parser.Parse(cgFiles, visFiles)
+	nodes := cg.Nodes
+	for _, node := range nodes {
+		for _, test := range tests {
+			if node.Class == test.ClassName && node.Method == test.Name && node.File == test.FileName {
+				node.HasFailed = string(test.Result.Status) == string(types.StatusFailed)
+			}
+		}
+	}
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to parse visgraph")
 	}
