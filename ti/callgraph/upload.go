@@ -70,6 +70,7 @@ func encodeCg(dataDir string, log *logrus.Logger, tests []*types.TestCase) ([]by
 	for _, node := range nodes {
 		for _, test := range tests {
 			if node.Class == test.ClassName && node.Method == test.Name && node.File == test.FileName {
+				log.Infoln(fmt.Sprintf("Test has failed: %s %s %s %s", test.ClassName, test.Name, test.FileName, test.Result.Status))
 				node.HasFailed = string(test.Result.Status) == string(types.StatusFailed)
 			}
 		}
