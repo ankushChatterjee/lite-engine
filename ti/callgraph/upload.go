@@ -68,6 +68,8 @@ func encodeCg(dataDir string, log *logrus.Logger, tests []*types.TestCase) ([]by
 	cg, err := parser.Parse(cgFiles, visFiles)
 	nodes := cg.Nodes
 	for _, node := range nodes {
+		node.HasFailed = true
+		log.Infoln(fmt.Sprintf("Test node1: %s %s %s", node.Class, node.Method, node.File))
 		for _, test := range tests {
 			log.Infoln(fmt.Sprintf("Test node: %s %s %s %s %s %s %s", node.Class, node.Method, node.File, test.ClassName, test.Name, test.FileName, test.Result.Status))
 			if node.Class == test.ClassName && node.Method == test.Name && node.File == test.FileName {
