@@ -69,13 +69,14 @@ func encodeCg(dataDir string, log *logrus.Logger, tests []*types.TestCase) ([]by
 	nodes := cg.Nodes
 	for _, node := range nodes {
 		node.HasFailed = true
-		log.Infoln(fmt.Sprintf("Test node1: %s %s %s", node.Class, node.Method, node.File))
+		// log.Infoln(fmt.Sprintf("Test node1: %s %s %s", node.Class, node.Method, node.File))
 		for _, test := range tests {
 			fqcn := fmt.Sprintf("%s.%s", node.Package, node.Class)
-			log.Infoln(fmt.Sprintf("Test node: %s %s %s %s %s %s %s", fqcn, node.Method, node.File, test.ClassName, test.Name, test.FileName, test.Result.Status))
+			// log.Infoln(fmt.Sprintf("Test node: %s %s %s %s %s %s %s", fqcn, node.Method, node.File, test.ClassName, test.Name, test.FileName, test.Result.Status))
 			if fqcn == test.ClassName && node.Method == test.Name {
-				log.Infoln(fmt.Sprintf("Test has failed: %s %s %s %s", test.ClassName, test.Name, test.FileName, test.Result.Status))
+				log.Infoln(fmt.Sprintf("Checking test: %s %s %s %s", test.ClassName, test.Name, test.FileName, test.Result.Status))
 				node.HasFailed = string(test.Result.Status) == string(types.StatusFailed)
+				log.Infoln(fmt.Sprintf("node.HasFailed: %t", node.HasFailed))
 			}
 		}
 	}
