@@ -67,17 +67,17 @@ func encodeCg(dataDir string, log *logrus.Logger, tests []*types.TestCase) ([]by
 	}
 	parser = NewCallGraphParser(log, fs)
 	cg, err := parser.Parse(cgFiles, visFiles)
-	nodes := cg.Nodes
-	for _, node := range nodes {
-		node.HasFailed = true
-		// log.Infoln(fmt.Sprintf("Test node1: %s %s %s", node.Class, node.Method, node.File))
+	// nodes := cg.Nodes // This assignment is fine, but we'll iterate over cg.Nodes directly by index
+	for i := range cg.Nodes {
+		cg.Nodes[i].HasFailed = true // Initialize HasFailed for the current node
+		// log.Infoln(fmt.Sprintf("Test node1: %s %s %s", cg.Nodes[i].Class, cg.Nodes[i].Method, cg.Nodes[i].File))
 		for _, test := range tests {
-			fqcn := fmt.Sprintf("%s.%s", node.Package, node.Class)
-			// log.Infoln(fmt.Sprintf("Test node: %s %s %s %s %s %s %s", fqcn, node.Method, node.File, test.ClassName, test.Name, test.FileName, test.Result.Status))
-			if fqcn == test.ClassName && node.Method == test.Name {
+			fqcn := fmt.Sprintf("%s.%s", cg.Nodes[i].Package, cg.Nodes[i].Class)
+			// log.Infoln(fmt.Sprintf("Test node: %s %s %s %s %s %s %s", fqcn, cg.Nodes[i].Method, cg.Nodes[i].File, test.ClassName, test.Name, test.FileName, test.Result.Status))
+			if fqcn == test.ClassName && cg.Nodes[i].Method == test.Name {
 				log.Infoln(fmt.Sprintf("Checking test: %s %s %s %s", test.ClassName, test.Name, test.FileName, test.Result.Status))
-				node.HasFailed = string(test.Result.Status) == string(types.StatusFailed)
-				log.Infoln(fmt.Sprintf("node.HasFailed: %t", node.HasFailed))
+				cg.Nodes[i].HasFailed = string(test.Result.Status) == string(types.StatusFailed)
+				log.Infoln(fmt.Sprintf("node.HasFailed: %t", cg.Nodes[i].HasFailed))
 			}
 		}
 	}
