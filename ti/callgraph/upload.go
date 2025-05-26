@@ -71,8 +71,9 @@ func encodeCg(dataDir string, log *logrus.Logger, tests []*types.TestCase) ([]by
 		node.HasFailed = true
 		log.Infoln(fmt.Sprintf("Test node1: %s %s %s", node.Class, node.Method, node.File))
 		for _, test := range tests {
-			log.Infoln(fmt.Sprintf("Test node: %s %s %s %s %s %s %s", node.Class, node.Method, node.File, test.ClassName, test.Name, test.FileName, test.Result.Status))
-			if node.Class == test.ClassName && node.Method == test.Name && node.File == test.FileName {
+			fqcn := fmt.Sprintf("%s.%s", node.Package, node.Class)
+			log.Infoln(fmt.Sprintf("Test node: %s %s %s %s %s %s %s", fqcn, node.Method, node.File, test.ClassName, test.Name, test.FileName, test.Result.Status))
+			if fqcn == test.ClassName && node.Method == test.Name {
 				log.Infoln(fmt.Sprintf("Test has failed: %s %s %s %s", test.ClassName, test.Name, test.FileName, test.Result.Status))
 				node.HasFailed = string(test.Result.Status) == string(types.StatusFailed)
 			}
