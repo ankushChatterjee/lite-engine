@@ -6,8 +6,8 @@ package callgraph
 
 import (
 	"context"
-	"fmt"
 	"encoding/json" // Added for logging deserialized callgraph
+	"fmt"
 	"path/filepath"
 	"time"
 
@@ -69,7 +69,7 @@ func encodeCg(dataDir string, log *logrus.Logger, tests []*types.TestCase) ([]by
 	cg, err := parser.Parse(cgFiles, visFiles)
 	// nodes := cg.Nodes // This assignment is fine, but we'll iterate over cg.Nodes directly by index
 	for i := range cg.Nodes {
-		cg.Nodes[i].HasFailed = true // Initialize HasFailed for the current node
+		cg.Nodes[i].HasFailed = false // Initialize HasFailed for the current node
 		// log.Infoln(fmt.Sprintf("Test node1: %s %s %s", cg.Nodes[i].Class, cg.Nodes[i].Method, cg.Nodes[i].File))
 		for _, test := range tests {
 			fqcn := fmt.Sprintf("%s.%s", cg.Nodes[i].Package, cg.Nodes[i].Class)
@@ -85,6 +85,12 @@ func encodeCg(dataDir string, log *logrus.Logger, tests []*types.TestCase) ([]by
 		return nil, errors.Wrap(err, "failed to parse visgraph")
 	}
 	log.Infoln(fmt.Sprintf("Size of Test nodes: %d, Test relations: %d, Vis Relations %d", len(cg.Nodes), len(cg.TestRelations), len(cg.VisRelations)))
+
+	// TEMPORARY DEBUGGING: Force HasFailed = true for the first node if it exists
+	if len(cg.Nodes) > 0 {
+		log.Infoln("DEBUG: Forcing HasFailed = true for the first node")
+		cg.Nodes[0].HasFailed = true
+	}
 
 	cgMap := cg.ToStringMap()
 	cgSer, err := avro.NewCgphSerialzer(cgSchemaType)
