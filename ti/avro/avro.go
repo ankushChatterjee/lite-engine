@@ -9,6 +9,7 @@ import (
 
 	goavro "github.com/linkedin/goavro/v2"
 	"github.com/pkg/errors"
+	"github.com/sirupsen/logrus"
 
 	cg "github.com/harness/lite-engine/ti/avro/schema/callgraph"
 )
@@ -35,7 +36,7 @@ const (
 
 // NewCgphSerialzer returns new CgphSerialzer object with the codec
 // based on the schema received in the input
-func NewCgphSerialzer(typ string) (*CgphSerialzer, error) {
+func NewCgphSerialzer(typ string, log *logrus.Logger) (*CgphSerialzer, error) {
 	var schema []byte
 	var err error
 	switch typ {
@@ -47,7 +48,7 @@ func NewCgphSerialzer(typ string) (*CgphSerialzer, error) {
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to read schema file")
 	}
-
+	log.Infoln(fmt.Sprintf("Using schema: %s", string(schema)))
 	codec, err := goavro.NewCodec(string(schema))
 	if err != nil {
 		panic(err)

@@ -93,7 +93,7 @@ func encodeCg(dataDir string, log *logrus.Logger, tests []*types.TestCase) ([]by
 	}
 
 	cgMap := cg.ToStringMap()
-	cgSer, err := avro.NewCgphSerialzer(cgSchemaType)
+	cgSer, err := avro.NewCgphSerialzer(cgSchemaType, log)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to create serializer")
 	}
@@ -104,24 +104,18 @@ func encodeCg(dataDir string, log *logrus.Logger, tests []*types.TestCase) ([]by
 	}
 	// Deserialize for logging
 	var deserializedCgMap map[string]interface{}
-	rawDeserializedData, err := cgSer.Deserialize(encCg) // cgSer.Deserialize(encCg) expected to return (interface{}, error)
+	rawDeserializedData, err := cgSer.Deserialize(encCg)
 	if err != nil {
-		// Note: 'err' is from cgSer.Deserialize.
-		// If cgSer.Serialize previously failed, the function would have already returned.
 		log.Warnf("Failed to deserialize callgraph for logging: %v", err)
 	} else {
 		var ok bool
 		deserializedCgMap, ok = rawDeserializedData.(map[string]interface{})
 		if !ok {
 			log.Warnf("Failed to type assert deserialized callgraph to map[string]interface{} for logging. Actual type: %T. Value: %+v", rawDeserializedData, rawDeserializedData)
-			// If type assertion fails, deserializedCgMap will be nil (if it's a map/slice/pointer type) or zero value.
-			// We have logged the rawDeserializedData, so no further logging of deserializedCgMap itself here.
 		} else {
-			// Proceed with logging deserializedCgMap as it's the correct type
 			jsonBytes, jsonErr := json.MarshalIndent(deserializedCgMap, "", "  ")
 			if jsonErr != nil {
 				log.Warnf("Failed to marshal deserialized (and type-asserted) callgraph to JSON for logging: %v", jsonErr)
-				// Log the raw map as a fallback if JSON marshaling fails
 				log.Infof("Deserialized callgraph (raw map for logging, post type-assertion): %+v", deserializedCgMap)
 			} else {
 				log.Infof("Deserialized callgraph (JSON for logging): \n%s", string(jsonBytes))
